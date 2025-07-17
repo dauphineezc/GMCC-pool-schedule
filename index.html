@@ -23,16 +23,37 @@ body { background: #ffffff; }
 }
 .calendar-grid {
   display: grid;
-  grid-template-columns: 100px repeat(7, 250px);
-  grid-template-rows: 50px repeat(17, 45px);
+  grid-template-columns: 100px repeat(7, 1fr);
+  grid-template-rows: 50px repeat(17, 45px); /* 1 header + 17 hour slots (5am-9pm + 1 extra) */
   background: #fff;
   border-radius: 0;
   box-shadow: none;
-  min-width: 1800px;
-  max-width: none;
+  min-width: 900px;
+  max-width: 1800px;
   width: 100vw;
   border: 0px solid var(--border);
   padding-bottom: 20px;
+  position: relative;
+}
+/* Add vertical lines for each day column using a pseudo-element */
+.calendar-grid::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 100px; /* width of time column */
+  width: calc(100% - 100px);
+  height: 100%;
+  pointer-events: none;
+  /* 6 lines between 7 columns: 1/7, 2/7, ..., 6/7 */
+  background-image: linear-gradient(to right,
+    transparent 0%, transparent calc(100%/7 - 0.5px), #d1d5db calc(100%/7 - 0.5px), #d1d5db calc(100%/7 + 0.5px), transparent calc(100%/7 + 0.5px),
+    transparent calc(2*100%/7 - 0.5px), #d1d5db calc(2*100%/7 - 0.5px), #d1d5db calc(2*100%/7 + 0.5px), transparent calc(2*100%/7 + 0.5px),
+    transparent calc(3*100%/7 - 0.5px), #d1d5db calc(3*100%/7 - 0.5px), #d1d5db calc(3*100%/7 + 0.5px), transparent calc(3*100%/7 + 0.5px),
+    transparent calc(4*100%/7 - 0.5px), #d1d5db calc(4*100%/7 - 0.5px), #d1d5db calc(4*100%/7 + 0.5px), transparent calc(4*100%/7 + 0.5px),
+    transparent calc(5*100%/7 - 0.5px), #d1d5db calc(5*100%/7 - 0.5px), #d1d5db calc(5*100%/7 + 0.5px), transparent calc(5*100%/7 + 0.5px),
+    transparent calc(6*100%/7 - 0.5px), #d1d5db calc(6*100%/7 - 0.5px), #d1d5db calc(6*100%/7 + 0.5px), transparent calc(6*100%/7 + 0.5px)
+  );
+  z-index: 0;
 }
 .calendar-grid .header {
   background: var(--header-bg);
@@ -66,7 +87,7 @@ body { background: #ffffff; }
 }
 .calendar-grid .cell {
   border-bottom: none;
-  border-right: 2px solid var(--border);
+  border-right: none;
   position: relative;
   background: #fff;
   min-height: 0;
