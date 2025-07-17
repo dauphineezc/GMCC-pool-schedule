@@ -10,6 +10,9 @@
 }
 body { background: #ffffff; }
 .calendar-grid-container {
+  overflow-x: auto;
+  min-width: 900px;
+  max-width: 100vw;
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   font-weight: 500;
   font-size: 1.35rem;
@@ -19,13 +22,13 @@ body { background: #ffffff; }
 }
 .calendar-grid {
   display: grid;
-  grid-template-columns: 100px repeat(7, 1fr);
+  grid-template-columns: 100px repeat(7, 250px);
   grid-template-rows: 50px repeat(17, 45px);
   background: #fff;
   border-radius: 0;
   box-shadow: none;
-  min-width: 1200px;
-  max-width: 1800px;
+  min-width: 1800px;
+  max-width: none;
   width: 100vw;
   border: 0px solid var(--border);
   padding-bottom: 20px;
@@ -92,7 +95,7 @@ body { background: #ffffff; }
   white-space: normal;
   line-height: 1.2;
   position: absolute;
-  border: 1px solid #fff;
+  border: 3px solid #fff;
   z-index: 1;
   box-sizing: border-box;
   overflow: hidden;
@@ -100,7 +103,7 @@ body { background: #ffffff; }
 .event-lap { background: var(--lap-blue); }
 .event-rec { background: var(--rec-green); }
 .event-open { background: var(--open-blue); }
-.event-time { font-size: 0.85em; font-weight: 350; color: #e0f7fa; margin: 0.1em 0 0 0; }
+.event-time { font-size: 0.75em; font-weight: 350; color: #e0f7fa; margin: 0.1em 0 0 0; }
 /* Overlap handling: width and left offset for up to 3 overlaps */
 .event.overlap-2-1 { width: 50%; left: 0; }
 .event.overlap-2-2 { width: 50%; left: 50%; }
