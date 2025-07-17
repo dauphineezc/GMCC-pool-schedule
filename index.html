@@ -24,7 +24,7 @@ body { background: #ffffff; }
 .calendar-grid {
   display: grid;
   grid-template-columns: 100px repeat(7, 1fr);
-  grid-template-rows: 50px repeat(17, 45px); /* 1 header + 17 hour slots (5am-9pm + 1 extra) */
+  grid-template-rows: 50px repeat(64, 15px); /* 1 header + 64 quarter-hour slots (5am-9pm) */
   background: #fff;
   border-radius: 0;
   box-shadow: none;
@@ -152,23 +152,23 @@ body { background: #ffffff; }
     <div class="header">SUNDAY</div>
     <!-- Time Labels (5:00 AM to 9:00 PM, every hour) -->
     <div class="time" style="grid-row: 2;">5:00 am</div>
-    <div class="time" style="grid-row: 3;">6:00 am</div>
-    <div class="time" style="grid-row: 4;">7:00 am</div>
-    <div class="time" style="grid-row: 5;">8:00 am</div>
-    <div class="time" style="grid-row: 6;">9:00 am</div>
-    <div class="time" style="grid-row: 7;">10:00 am</div>
-    <div class="time" style="grid-row: 8;">11:00 am</div>
-    <div class="time" style="grid-row: 9;">12:00 pm</div>
-    <div class="time" style="grid-row: 10;">1:00 pm</div>
-    <div class="time" style="grid-row: 11;">2:00 pm</div>
-    <div class="time" style="grid-row: 12;">3:00 pm</div>
-    <div class="time" style="grid-row: 13;">4:00 pm</div>
-    <div class="time" style="grid-row: 14;">5:00 pm</div>
-    <div class="time" style="grid-row: 15;">6:00 pm</div>
-    <div class="time" style="grid-row: 16;">7:00 pm</div>
-    <div class="time" style="grid-row: 17;">8:00 pm</div>
-    <div class="time" style="grid-row: 18;">9:00 pm</div>
-    <div class="time" style="grid-row: 19;"> </div> <!-- empty for spacing -->
+    <div class="time" style="grid-row: 6;">6:00 am</div>
+    <div class="time" style="grid-row: 10;">7:00 am</div>
+    <div class="time" style="grid-row: 14;">8:00 am</div>
+    <div class="time" style="grid-row: 18;">9:00 am</div>
+    <div class="time" style="grid-row: 22;">10:00 am</div>
+    <div class="time" style="grid-row: 26;">11:00 am</div>
+    <div class="time" style="grid-row: 30;">12:00 pm</div>
+    <div class="time" style="grid-row: 34;">1:00 pm</div>
+    <div class="time" style="grid-row: 38;">2:00 pm</div>
+    <div class="time" style="grid-row: 42;">3:00 pm</div>
+    <div class="time" style="grid-row: 46;">4:00 pm</div>
+    <div class="time" style="grid-row: 50;">5:00 pm</div>
+    <div class="time" style="grid-row: 54;">6:00 pm</div>
+    <div class="time" style="grid-row: 58;">7:00 pm</div>
+    <div class="time" style="grid-row: 62;">8:00 pm</div>
+    <div class="time" style="grid-row: 66;">9:00 pm</div>
+    <div class="time" style="grid-row: 67;"> </div> <!-- empty for spacing -->
   </div>
 </div>
 <script>
@@ -215,15 +215,14 @@ const events = [
   { day: 7, start: 11, end: 13, type: 'lap', label: 'Lap Swim' },
 ];
 
-const hourRows = 16; // 5am-9pm
 const gridStartHour = 5;
+const gridRowHeight = 0.25; // 15 minutes per row
 const grid = document.querySelector('.calendar-grid');
 
 function hourToRow(hour) {
-  // Each row is 1 hour, grid-row:2 is 5:00 am
-  // For fractional hours, we want the event to start at the correct row and span the correct number of rows
-  // For example, 19 (7pm) should be row 16, 20.5 (8:30pm) should be row 18 (end at 9pm)
-  return 2 + Math.floor(hour - gridStartHour);
+  // Each row is 15 minutes, grid-row:2 is 5:00 am
+  // (hour - 5) / 0.25 + 2
+  return 2 + Math.round((hour - gridStartHour) / gridRowHeight);
 }
 
 // Debug: check what rows 7pm and 8:30pm map to
@@ -284,8 +283,8 @@ for (let day = 0; day < 7; ++day) {
     // Render the event as a single block
     const col = day+2;
     const row = hourToRow(ev.start);
-    // Calculate span: number of rows to cover (each row = 1 hour)
-    const span = Math.ceil(ev.end) - Math.floor(ev.start);
+    // Calculate span: number of rows to cover (each row = 0.25 hour)
+    const span = Math.round((ev.end - ev.start) / gridRowHeight);
     const width = 100/maxOverlap;
     const left = width*order;
     const eventDiv = document.createElement('div');
