@@ -1,0 +1,312 @@
+<!-- Minimalist Modern CSS Grid Pool Schedule Calendar -->
+<style>
+:root {
+  --lap-blue: #457bdb;
+  --rec-green: #16a6b6;
+  --open-blue: #6c63ff;
+  --header-bg: #fff;
+  --border: #ffffff;
+  --time-col: #fff;
+  --font: 'Helvetica Neue', Arial, sans-serif;
+}
+body { background: #ffffff; }
+.calendar-grid-container {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 1.35rem;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 100px repeat(7, 1fr);
+  grid-template-rows: 50px repeat(17, 45px); /* 1 header + 17 hour slots (5am-9pm + 1 extra) */
+  background: #fff;
+  border-radius: 0;
+  box-shadow: none;
+  min-width: 900px;
+  max-width: 1800px;
+  width: 100vw;
+  border: 0px solid var(--border);
+  padding-bottom: 20px;
+}
+.calendar-grid .header {
+  background: var(--header-bg);
+  border-bottom: 2px solid var(--border);
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 2px solid var(--border);
+  letter-spacing: 0.02em;
+}
+.calendar-grid .header:first-child {
+  border-right: 2px solid var(--border);
+}
+.calendar-grid .header:not(:first-child) {
+  border-left: none;
+}
+.calendar-grid .time {
+  background: var(--time-col);
+  border-right: 2px solid var(--border);
+  text-align: right;
+  padding-right: 0.5em;
+  font-size: 1.05rem;
+  color: #222;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-bottom: none;
+}
+.calendar-grid .cell {
+  border-bottom: none;
+  border-right: 2px solid var(--border);
+  position: relative;
+  background: #fff;
+  min-height: 0;
+  padding: 0;
+  overflow: visible;
+}
+.calendar-grid .cell:last-child {
+  border-right: none;
+}
+.calendar-grid .cell {
+  /* vertical day dividers, extend all the way down */
+  box-shadow: inset -1px 0 0 0 var(--border);
+}
+.calendar-grid .cell[style*='grid-column: 2;'] {
+  box-shadow: none;
+}
+.event {
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 0.3em 0.5em 0.2em 0.5em;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  white-space: normal;
+  line-height: 1.2;
+  position: absolute;
+  border: 1px solid #fff;
+  z-index: 1;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.event-lap { background: var(--lap-blue); }
+.event-rec { background: var(--rec-green); }
+.event-open { background: var(--open-blue); }
+.event-time { font-size: 0.85em; font-weight: 350; color: #e0f7fa; margin: 0.1em 0 0 0; }
+/* Overlap handling: width and left offset for up to 3 overlaps */
+.event.overlap-2-1 { width: 50%; left: 0; }
+.event.overlap-2-2 { width: 50%; left: 50%; }
+.event.overlap-3-1 { width: 33.33%; left: 0; }
+.event.overlap-3-2 { width: 33.33%; left: 33.33%; }
+.event.overlap-3-3 { width: 33.33%; left: 66.66%; }
+.event.overlap-1 { width: 100%; left: 0; }
+@media (max-width: 1100px) {
+  .calendar-grid { min-width: 700px; max-width: 900px; }
+  .header { font-size: 1.1rem; }
+}
+</style>
+<div class="calendar-grid-container">
+  <div class="calendar-grid">
+    <!-- Header Row -->
+    <div class="header"></div>
+    <div class="header">MONDAY</div>
+    <div class="header">TUESDAY</div>
+    <div class="header">WEDNESDAY</div>
+    <div class="header">THURSDAY</div>
+    <div class="header">FRIDAY</div>
+    <div class="header">SATURDAY</div>
+    <div class="header">SUNDAY</div>
+    <!-- Time Labels (5:00 AM to 9:00 PM, every hour) -->
+    <div class="time" style="grid-row: 2;">5:00 am</div>
+    <div class="time" style="grid-row: 3;">6:00 am</div>
+    <div class="time" style="grid-row: 4;">7:00 am</div>
+    <div class="time" style="grid-row: 5;">8:00 am</div>
+    <div class="time" style="grid-row: 6;">9:00 am</div>
+    <div class="time" style="grid-row: 7;">10:00 am</div>
+    <div class="time" style="grid-row: 8;">11:00 am</div>
+    <div class="time" style="grid-row: 9;">12:00 pm</div>
+    <div class="time" style="grid-row: 10;">1:00 pm</div>
+    <div class="time" style="grid-row: 11;">2:00 pm</div>
+    <div class="time" style="grid-row: 12;">3:00 pm</div>
+    <div class="time" style="grid-row: 13;">4:00 pm</div>
+    <div class="time" style="grid-row: 14;">5:00 pm</div>
+    <div class="time" style="grid-row: 15;">6:00 pm</div>
+    <div class="time" style="grid-row: 16;">7:00 pm</div>
+    <div class="time" style="grid-row: 17;">8:00 pm</div>
+    <div class="time" style="grid-row: 18;">9:00 pm</div>
+    <div class="time" style="grid-row: 19;"> </div> <!-- empty for spacing -->
+    <!-- Example events for Monday, with overlap handling -->
+    <!-- Event blocks will be injected here by JavaScript -->
+  </div>
+</div>
+<script>
+// Event data: day (1=Mon, 2=Tue,...), start/end in 24h (e.g. 5.0, 13.5), type, label
+const events = [
+  // Monday
+  { day: 1, start: 5, end: 8, type: 'rec', label: 'Rec Swim' },
+  { day: 1, start: 5, end: 8, type: 'lap', label: 'Lap Swim' },
+  { day: 1, start: 9, end: 13, type: 'lap', label: 'Lap Swim' },
+  { day: 1, start: 11, end: 16, type: 'rec', label: 'Rec Swim' },
+  { day: 1, start: 19, end: 20.5, type: 'lap', label: 'Lap Swim' },
+  
+  // Tuesday
+  { day: 2, start: 5, end: 8, type: 'rec', label: 'Rec Swim' },
+  { day: 2, start: 5, end: 13, type: 'lap', label: 'Lap Swim' },
+  { day: 2, start: 12, end: 16, type: 'rec', label: 'Rec Swim' },
+  { day: 2, start: 19, end: 20.5, type: 'lap', label: 'Lap Swim' },
+  { day: 2, start: 19, end: 20.5, type: 'rec', label: 'Rec Swim' },
+
+  // Wednesday
+  { day: 3, start: 5, end: 8, type: 'rec', label: 'Rec Swim' },
+  { day: 3, start: 5, end: 8, type: 'lap', label: 'Lap Swim' },
+  { day: 3, start: 9, end: 13, type: 'lap', label: 'Lap Swim' },
+  { day: 3, start: 12, end: 16, type: 'rec', label: 'Rec Swim' },
+  { day: 3, start: 19, end: 20.5, type: 'lap', label: 'Lap Swim' },
+
+  // Thursday
+  { day: 4, start: 5, end: 8, type: 'rec', label: 'Rec Swim' },
+  { day: 4, start: 5, end: 13, type: 'lap', label: 'Lap Swim' },
+  { day: 4, start: 12, end: 16, type: 'rec', label: 'Rec Swim' },
+
+  // Friday 
+  { day: 5, start: 5, end: 8, type: 'rec', label: 'Rec Swim' },
+  { day: 5, start: 5, end: 8, type: 'lap', label: 'Lap Swim' },
+  { day: 5, start: 9, end: 13, type: 'lap', label: 'Lap Swim' },
+  { day: 5, start: 12, end: 16, type: 'rec', label: 'Rec Swim' },
+
+  // Saturday
+  { day: 6, start: 8, end: 12, type: 'rec', label: 'Rec Swim' },
+  { day: 6, start: 8, end: 12, type: 'lap', label: 'Lap Swim' },
+
+  // Sunday
+  { day: 7, start: 11, end: 13, type: 'rec', label: 'Rec Swim' },
+  { day: 7, start: 11, end: 13, type: 'lap', label: 'Lap Swim' },
+];
+
+const hourRows = 16; // 5am-9pm
+const gridStartHour = 5;
+const grid = document.querySelector('.calendar-grid');
+
+function hourToRow(hour) {
+  // Each row is 1 hour, grid-row:2 is 5:00 am
+  // For fractional hours, we want the event to start at the correct row and span the correct number of rows
+  // For example, 19 (7pm) should be row 16, 20.5 (8:30pm) should be row 18 (end at 9pm)
+  return 2 + Math.floor(hour - gridStartHour);
+}
+
+// Debug: check what rows 7pm and 8:30pm map to
+console.log('Lap Swim 7pm:', hourToRow(19), 'to', hourToRow(20.5));
+
+// Improved overlap logic: render each event as a single block
+function getOverlaps(ev, dayEvents) {
+  // Return all events that overlap with ev
+  return dayEvents.filter(e => e !== ev && e.start < ev.end && e.end > ev.start);
+}
+
+function getMaxOverlap(ev, dayEvents) {
+  // For each time slot in ev, count overlaps
+  let max = 1;
+  for (let t = ev.start; t < ev.end; t += 0.25) { // check every 15 min
+    let count = 1;
+    for (const other of dayEvents) {
+      if (other !== ev && other.start < t + 0.01 && other.end > t - 0.01) {
+        count++;
+      }
+    }
+    if (count > max) max = count;
+  }
+  return max;
+}
+
+function getEventOrder(ev, dayEvents) {
+  // For the first time this event overlaps, what is its order among overlaps?
+  const overlaps = dayEvents.filter(e => e !== ev && e.start < ev.end && e.end > ev.start);
+  const all = [ev, ...overlaps].sort((a, b) => a.start - b.start || a.end - b.end);
+  return all.indexOf(ev);
+}
+
+// Group events by day
+const eventsByDay = Array.from({length:7}, () => []);
+events.forEach(ev => eventsByDay[ev.day-1].push(ev));
+
+for (let day = 0; day < 7; ++day) {
+  const dayEvents = eventsByDay[day].slice().sort((a,b) => a.start-b.start || a.end-b.end || a.type.localeCompare(b.type) || a.label.localeCompare(b.label));
+  for (const ev of dayEvents) {
+    // Find all events that overlap with this one
+    const overlaps = dayEvents.filter(e => e !== ev && e.start < ev.end && e.end > ev.start);
+    // For each 15-min slot, count overlaps, take max
+    let maxOverlap = 1;
+    for (let t = ev.start; t < ev.end; t += 0.25) {
+      let count = 1;
+      for (const other of dayEvents) {
+        if (other !== ev && other.start < t + 0.01 && other.end > t - 0.01) {
+          count++;
+        }
+      }
+      if (count > maxOverlap) maxOverlap = count;
+    }
+    // Find this event's order among overlapping events at its start time
+    const overlappingAtStart = dayEvents.filter(e => e !== ev && e.start < ev.start + 0.01 && e.end > ev.start - 0.01);
+    const allAtStart = [ev, ...overlappingAtStart].sort((a, b) => a.start - b.start || a.end - b.end || a.type.localeCompare(b.type) || a.label.localeCompare(b.label));
+    const order = allAtStart.indexOf(ev);
+    // Render the event as a single block
+    const col = day+2;
+    const row = hourToRow(ev.start);
+    // Calculate span: number of rows to cover (each row = 1 hour)
+    const span = Math.ceil(ev.end) - Math.floor(ev.start);
+    const width = 100/maxOverlap;
+    const left = width*order;
+    const eventDiv = document.createElement('div');
+    eventDiv.className = `event event-${ev.type}`;
+    eventDiv.style.width = width+'%';
+    eventDiv.style.left = left+'%';
+    eventDiv.style.position = 'absolute';
+    eventDiv.style.top = '0';
+    eventDiv.style.height = '100%';
+    eventDiv.style.zIndex = 1;
+    eventDiv.innerHTML = `${ev.label}<div class="event-time">${formatTime(ev.start)}–${formatTime(ev.end)}</div>`;
+    // Find or create the cell
+    let cell = grid.querySelector(`.cell[data-day='${col}'][data-row='${row}']`);
+    if (!cell) {
+      cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.style.gridColumn = col;
+      cell.style.gridRow = `${row} / span ${span}`;
+      cell.style.position = 'relative';
+      cell.setAttribute('data-day', col);
+      cell.setAttribute('data-row', row);
+      grid.appendChild(cell);
+    }
+    cell.appendChild(eventDiv);
+  }
+}
+
+function formatTime(h) {
+  const hour = Math.floor(h);
+  const min = Math.round((h-hour)*60);
+  let ampm = hour < 12 ? 'am' : 'pm';
+  let dispHour = hour % 12;
+  if (dispHour === 0) dispHour = 12;
+  return min === 0 ? `${dispHour}:00 ${ampm}` : `${dispHour}:${min.toString().padStart(2,'0')} ${ampm}`;
+}
+</script>
+<!--
+  To add an event:
+  <div class="cell" style="grid-column: [day]; grid-row: [start] / span [duration]; position: relative;">
+    <div class="event event-lap|event-rec|event-open event-time overlap-1|overlap-2-1|overlap-2-2|overlap-3-1|overlap-3-2|overlap-3-3">Title<div class="event-time">Time</div></div>
+    ...
+  </div>
+  - grid-column: 2 = Monday, 3 = Tuesday, ... 8 = Sunday
+  - grid-row: 2 = 5:00 AM, 3 = 6:00 AM, ... 18 = 9:00 PM
+  - span N = number of hours (each row is 1 hour)
+  - overlap-X-Y = X events overlapping, this is the Yth event (1-based)
+-->
