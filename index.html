@@ -1,4 +1,3 @@
-<!-- Minimalist Modern CSS Grid Pool Schedule Calendar -->
 <style>
 :root {
   --lap-blue: #457bdb;
@@ -21,11 +20,11 @@ body { background: #ffffff; }
 .calendar-grid {
   display: grid;
   grid-template-columns: 100px repeat(7, 1fr);
-  grid-template-rows: 50px repeat(17, 45px); /* 1 header + 17 hour slots (5am-9pm + 1 extra) */
+  grid-template-rows: 50px repeat(17, 45px);
   background: #fff;
   border-radius: 0;
   box-shadow: none;
-  min-width: 900px;
+  min-width: 1200px;
   max-width: 1800px;
   width: 100vw;
   border: 0px solid var(--border);
@@ -144,8 +143,6 @@ body { background: #ffffff; }
     <div class="time" style="grid-row: 17;">8:00 pm</div>
     <div class="time" style="grid-row: 18;">9:00 pm</div>
     <div class="time" style="grid-row: 19;"> </div> <!-- empty for spacing -->
-    <!-- Example events for Monday, with overlap handling -->
-    <!-- Event blocks will be injected here by JavaScript -->
   </div>
 </div>
 <script>
