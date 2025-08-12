@@ -290,7 +290,6 @@
     const top = (ev.start - startHour) * rowH;
     const height = (ev.end - ev.start) * rowH;
   
-    // find the first cell for this day (column box)
     const dayCell = [...els.gridBody.querySelectorAll(".day-col")]
                     .find(n => +n.dataset.day === ev.dayIndex);
     if (!dayCell) return;
@@ -300,10 +299,10 @@
     const colLeft = colBox.left - gridBox.left;
     const colW    = colBox.width;
   
-    // equal columns + small gap between cards
-    const GUTTER = 6; // px
-    const width  = colW / ev.colCount - (GUTTER * 2);
-    const left   = colLeft + (colW * ev.col / ev.colCount) + GUTTER;
+    const GUTTER = 6; // space between cards
+    const totalGutter = (ev.colCount - 1) * GUTTER;
+    const width  = (colW - totalGutter) / ev.colCount;
+    const left   = colLeft + ev.col * (width + GUTTER);
   
     const card = document.createElement("div");
     card.className = `event-card shadow-sm ${ev.color.bg} ${ev.color.text} ${ev.color.border}`;
@@ -317,7 +316,7 @@
     `;
     els.gridBody.appendChild(card);
   }
-  
+
   function positionNowLine(startHour, endHour){
     // remove previous
     document.querySelectorAll(".now-line").forEach(n => n.remove());
@@ -355,10 +354,11 @@
     const dot = document.createElement("div");
     dot.className = "now-dot";
     dot.style.position = "absolute";
+    dot.style.top = "50%";
     dot.style.left = "0px";
-    dot.style.top = "-3px";
     dot.style.width = "8px";
     dot.style.height = "8px";
+    dot.style.transform = "translateY(-50%) translateX(-50%)";
     dot.style.borderRadius = "9999px";
     dot.style.background = "#ef4444";
   
