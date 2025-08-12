@@ -281,28 +281,43 @@
       e.colCount = cols.length;
     }
   }
-
+  
   function placeEvent(ev){
     const startHour = 5;
-    const top = (ev.start - startHour) * parseInt(getComputedStyle(document.documentElement).getPropertyValue("--row-h"));
-    const height = (ev.end - ev.start) * parseInt(getComputedStyle(document.documentElement).getPropertyValue("--row-h"));
-    const widthPct = 100 / ev.colCount;
-    const leftPct  = ev.col * widthPct;
-
-    // find the day column container for absolute positioning
-    const dayCols = [...els.gridBody.querySelectorAll(".day-col")].filter(n => +n.dataset.day === ev.dayIndex);
-    // The column appears once per hour row; we want the first one (topmost in that day)
-    const dayColTop = dayCols[0];
+    const rowH = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--row-h"));
+  
+    // vertical placement
+    const top = (ev.start - startHour) * rowH;
+    const height = (ev.end - ev.start) * rowH;
+  
+    // find the first cell of this day (it gives us the column box)
+    const dayCell = [...els.gridBody.querySelectorAll(".day-col")]
+      .find(n => +n.dataset.day === ev.dayIndex);
+    if (!dayCell) return;
+  
+    // compute pixel left/width relative to the grid container
+    const gridBox = els.gridBody.getBoundingClientRect();
+    const colBox  = dayCell.getBoundingClientRect();
+    const colLeft = colBox.left - gridBox.left;
+    const colW    = colBox.width;
+  
+    const colCount = ev.colCount;
+    const colIndex = ev.col;
+  
+    const left  = colLeft + (colW * colIndex / colCount) + 4;   // padding
+    const width = (colW / colCount) - 8;                        // padding
+  
     const card = document.createElement("div");
     card.className = `event-card shadow-sm ${ev.color.bg} ${ev.color.text} ${ev.color.border}`;
     card.style.top = `${top}px`;
     card.style.height = `${height}px`;
-    card.style.left = `calc(${leftPct}% + 4px)`;
-    card.style.width = `calc(${widthPct}% - 8px)`;
+    card.style.left = `${left}px`;
+    card.style.width = `${width}px`;
     card.innerHTML = `<p class="font-semibold text-sm leading-tight">${ev.name}</p>
                       <p class="text-xs opacity-90">${formatTime(ev.start)} – ${formatTime(ev.end)}</p>`;
-    // append at the end of gridBody so absolute coordinates are relative to the grid container
-    dayColTop.parentElement.appendChild(card);
+  
+    // append to the grid overlay (absolute relative to gridBody)
+    els.gridBody.appendChild(card);
   }
 
   function positionNowLine(startHour, endHour){
