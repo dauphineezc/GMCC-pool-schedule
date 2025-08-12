@@ -15,7 +15,7 @@
     .scrollbar::-webkit-scrollbar-thumb{ background:#a8a8a8; border-radius:4px;} .scrollbar::-webkit-scrollbar-thumb:hover{ background:#888; }
     .tab-btn.active{ border-bottom-color:#3b82f6; color:#111827; font-weight:600; }
     .day-col { position: relative; }
-    .event-card { position:absolute; left:0; right:0; border-left-width:4px; border-radius:0.5rem; padding:0.5rem; }
+    .event-card { position:absolute; left:0; border-left-width:4px; border-radius:0.5rem; padding:0.5rem; }
     .now-line { position:absolute; height:2px; background:#ef4444; z-index:30; }
     .now-dot { position:absolute; width:8px; height:8px; background:#ef4444; border-radius:9999px; transform:translate(-6px,-3px); }
     @media print {
@@ -27,10 +27,6 @@
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased">
   <main class="mx-auto max-w-7xl p-4">
-    <!-- Tabs -->
-    <div class="mb-4 border-b border-gray-200">
-      <nav id="tabs" class="-mb-px flex flex-wrap gap-6" aria-label="Calendars"></nav>
-    </div>
 
     <!-- Controls -->
     <div class="no-print flex flex-wrap items-center justify-between gap-3 mb-3">
@@ -42,6 +38,11 @@
       <div id="rangeLabel" class="font-semibold"></div>
       <div class="text-sm text-gray-500">Times shown in <span id="tzLabel"></span></div>
     </div>
+
+    <!-- Tabs -->
+  <div class="mb-4 border-b border-gray-200">
+    <nav id="tabs" class="-mb-px flex flex-wrap gap-6" aria-label="Calendars"></nav>
+  </div>
 
     <!-- Desktop grid -->
     <section class="hidden md:block bg-white rounded-lg shadow overflow-hidden">
@@ -284,60 +285,84 @@
   
   function placeEvent(ev){
     const startHour = 5;
-    const rowH = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--row-h"));
-  
-    // vertical placement
+    const rowH = parseInt(getComputedStyle(document.documentElement)
+                  .getPropertyValue("--row-h"));
     const top = (ev.start - startHour) * rowH;
     const height = (ev.end - ev.start) * rowH;
   
-    // find the first cell of this day (it gives us the column box)
+    // find the first cell for this day (column box)
     const dayCell = [...els.gridBody.querySelectorAll(".day-col")]
-      .find(n => +n.dataset.day === ev.dayIndex);
+                    .find(n => +n.dataset.day === ev.dayIndex);
     if (!dayCell) return;
   
-    // compute pixel left/width relative to the grid container
     const gridBox = els.gridBody.getBoundingClientRect();
     const colBox  = dayCell.getBoundingClientRect();
     const colLeft = colBox.left - gridBox.left;
     const colW    = colBox.width;
   
-    const colCount = ev.colCount;
-    const colIndex = ev.col;
-  
-    const left  = colLeft + (colW * colIndex / colCount) + 4;   // padding
-    const width = (colW / colCount) - 8;                        // padding
+    // equal columns + small gap between cards
+    const GUTTER = 6; // px
+    const width  = colW / ev.colCount - (GUTTER * 2);
+    const left   = colLeft + (colW * ev.col / ev.colCount) + GUTTER;
   
     const card = document.createElement("div");
     card.className = `event-card shadow-sm ${ev.color.bg} ${ev.color.text} ${ev.color.border}`;
-    card.style.top = `${top}px`;
-    card.style.height = `${height}px`;
-    card.style.left = `${left}px`;
+    card.style.top   = `${top}px`;
+    card.style.height= `${height}px`;
+    card.style.left  = `${left}px`;
     card.style.width = `${width}px`;
-    card.innerHTML = `<p class="font-semibold text-sm leading-tight">${ev.name}</p>
-                      <p class="text-xs opacity-90">${formatTime(ev.start)} – ${formatTime(ev.end)}</p>`;
-  
-    // append to the grid overlay (absolute relative to gridBody)
+    card.innerHTML = `
+      <p class="font-semibold text-sm leading-tight">${ev.name}</p>
+      <p class="text-xs opacity-90">${formatTime(ev.start)} – ${formatTime(ev.end)}</p>
+    `;
     els.gridBody.appendChild(card);
   }
-
+  
   function positionNowLine(startHour, endHour){
-    // remove prior
-    document.querySelectorAll(".now-line").forEach(n=>n.remove());
+    // remove previous
+    document.querySelectorAll(".now-line").forEach(n => n.remove());
+  
     const now = new Date();
-    const dow = (now.getDay()+6)%7; // Mon=0
+    const dow = (now.getDay() + 6) % 7; // Mon=0
     const h = now.getHours(), m = now.getMinutes();
     if (h < startHour || h >= endHour) return;
-
-    const minutesPast = (h - startHour)*60 + m;
-    const top = minutesPast * (parseInt(getComputedStyle(document.documentElement).getPropertyValue("--row-h"))/60);
-
-    // create line sized to the day's column
+  
+    // column geometry
+    const dayCell = [...els.gridBody.querySelectorAll(".day-col")]
+                    .find(n => +n.dataset.day === dow);
+    if (!dayCell) return;
+  
+    const gridBox = els.gridBody.getBoundingClientRect();
+    const colBox  = dayCell.getBoundingClientRect();
+    const colLeft = colBox.left - gridBox.left;
+    const colW    = colBox.width;
+  
+    const rowH = parseInt(getComputedStyle(document.documentElement)
+                  .getPropertyValue("--row-h"));
+    const minutesPast = (h - startHour) * 60 + m;
+    const top = minutesPast * (rowH / 60);
+  
     const line = document.createElement("div");
     line.className = "now-line";
+    line.style.position = "absolute";
+    line.style.left = `${colLeft}px`;
+    line.style.width = `${colW}px`;
     line.style.top = `${top}px`;
-    // use CSS grid column positioning
-    line.style.gridColumn = `${dow+2} / span 1`;
-    line.innerHTML = `<span class="now-dot"></span>`;
+    line.style.height = "2px";
+    line.style.background = "#ef4444";
+    line.style.zIndex = "30";
+  
+    const dot = document.createElement("div");
+    dot.className = "now-dot";
+    dot.style.position = "absolute";
+    dot.style.left = "0px";
+    dot.style.top = "-3px";
+    dot.style.width = "8px";
+    dot.style.height = "8px";
+    dot.style.borderRadius = "9999px";
+    dot.style.background = "#ef4444";
+  
+    line.appendChild(dot);
     els.gridBody.appendChild(line);
   }
   setInterval(()=>{ renderHeader(); renderGrid(); }, 60000); // tick minute
