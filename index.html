@@ -15,7 +15,7 @@
     .scrollbar::-webkit-scrollbar-thumb{ background:#a8a8a8; border-radius:4px;} .scrollbar::-webkit-scrollbar-thumb:hover{ background:#888; }
     .tab-btn.active{ border-bottom-color:#3b82f6; color:#111827; font-weight:600; }
     .day-col { position: relative; }
-    .event-card { position:absolute; left:0; border-left-width:4px; border-radius:0.5rem; padding:0.5rem; }
+    .event-card { position:absolute; box-sizing:border-box; border-left-width:4px; border-radius:0.5rem; padding:0.5rem; }
     .now-line { position:absolute; height:2px; background:#ef4444; z-index:30; }
     .now-dot { position:absolute; width:8px; height:8px; background:#ef4444; border-radius:9999px; transform:translate(-6px,-3px); }
     @media print {
@@ -285,13 +285,14 @@
   
   function placeEvent(ev){
     const startHour = 5;
-    const rowH = parseInt(getComputedStyle(document.documentElement)
-                  .getPropertyValue("--row-h"));
-    const top = (ev.start - startHour) * rowH;
-    const height = (ev.end - ev.start) * rowH;
+    const rowH = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--row-h"));
   
-    const dayCell = [...els.gridBody.querySelectorAll(".day-col")]
-                    .find(n => +n.dataset.day === ev.dayIndex);
+    // vertical
+    const top    = (ev.start - startHour) * rowH;
+    const height = (ev.end   - ev.start)  * rowH;
+  
+    // day column geometry
+    const dayCell = [...els.gridBody.querySelectorAll(".day-col")].find(n => +n.dataset.day === ev.dayIndex);
     if (!dayCell) return;
   
     const gridBox = els.gridBody.getBoundingClientRect();
@@ -299,17 +300,18 @@
     const colLeft = colBox.left - gridBox.left;
     const colW    = colBox.width;
   
-    const GUTTER = 6; // space between cards
+    // equal columns + one shared gutter between neighbors
+    const GUTTER = 8; // px visible gap
     const totalGutter = (ev.colCount - 1) * GUTTER;
     const width  = (colW - totalGutter) / ev.colCount;
     const left   = colLeft + ev.col * (width + GUTTER);
   
     const card = document.createElement("div");
     card.className = `event-card shadow-sm ${ev.color.bg} ${ev.color.text} ${ev.color.border}`;
-    card.style.top   = `${top}px`;
-    card.style.height= `${height}px`;
-    card.style.left  = `${left}px`;
-    card.style.width = `${width}px`;
+    card.style.top    = `${top}px`;
+    card.style.height = `${height}px`;
+    card.style.left   = `${Math.round(left)}px`;
+    card.style.width  = `${Math.round(width)}px`;
     card.innerHTML = `
       <p class="font-semibold text-sm leading-tight">${ev.name}</p>
       <p class="text-xs opacity-90">${formatTime(ev.start)} – ${formatTime(ev.end)}</p>
